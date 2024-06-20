@@ -1,6 +1,7 @@
 import { extend, isObject } from "../../shared";
 import { track, trigger } from "./effect";
 import { ReactiveFlags, reactive, readonly } from "./reactive";
+import { isRef, unRef } from "./ref";
 
 const get = createGetter();
 const set = createSetter();
@@ -57,3 +58,19 @@ export const readonlyHandlers = {
 export const shallowReadonlyHandlers = extend({}, readonlyHandlers, {
   get: shallowReadonlyGet,
 });
+
+export const shallowUnwrapHandlers = {
+  get(target, key, receiver) {
+    // 如果里面是一个 ref 类型的话，那么就返回 .value
+    // 如果不是的话，那么直接返回value 就可以了
+    return unRef(Reflect.get(target, key, receiver));
+  },
+  set(target, key, value, receiver) {
+    const oldValue = target[key];
+    if (isRef(oldValue) && !isRef(value)) {
+      return (target[key].value = value);
+    } else {
+      return Reflect.set(target, key, value, receiver);
+    }
+  },
+};

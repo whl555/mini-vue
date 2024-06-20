@@ -50,10 +50,20 @@ function cleanupEffect(effect) {
   effect.deps.length = 0;
 }
 
-function trackEffects(dep) {
+export function trackEffects(dep) {
   if (!dep.has(globalEffect)) {
     dep.add(globalEffect);
     (globalEffect as any).deps.push(dep);
+  }
+}
+
+export function triggerEffects(dep) {
+  for (const effect of dep) {
+    if (effect.scheduler) {
+      effect.scheduler();
+    } else {
+      effect.run();
+    }
   }
 }
 
@@ -85,13 +95,8 @@ export function track(target, key) {
 export function trigger(target, key) {
   let depMap = targetMap.get(target);
   let deps = depMap.get(key);
-  for (const effect of deps) {
-    if (effect.scheduler) {
-      effect.scheduler();
-    } else {
-      effect.run();
-    }
-  }
+
+  triggerEffects(deps);
 }
 export function effect(func, options: any = {}) {
   // 调用effect时, 收集func
