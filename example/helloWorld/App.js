@@ -1,32 +1,24 @@
-import { h, ref } from "../../dist/mini-vue.esm-bundler.js";
+import { h } from "../../dist/mini-vue.esm-bundler.js";
 
-const count = ref(0);
-
-const HelloWorld = {
-  name: "HelloWorld",
-  setup() {},
-  // TODO 第一个小目标
-  // setup render h
-  // 可以在使用 template 只需要有一个插值表达式即
-  // 可以解析 tag 标签
-  // template: `
-  //   <div>hi {{msg}}</div>
-  //   需要编译成 render 函数
-  // `,
-  render() {
-    return h(
-      "div",
-      { tId: "helloWorld" },
-      `hello world: count: ${count.value}`
-    );
-  },
-};
+// const count = ref(0);
 
 export default {
   name: "App",
-  setup() {},
+  setup() {
+    return {
+      msg: "wuhaolei",
+    };
+  },
 
   render() {
-    return h("div", { tId: 1 }, [h("p", {}, "主页"), h(HelloWorld)]);
+    return h(
+      "div",
+      {
+        id: "root",
+        class: "hard",
+      },
+      // "hi, wuhaolei"
+      [h("p", { class: "red" }, "hi"), h("p", { class: "blue" }, "wuhaolei")]
+    );
   },
 };

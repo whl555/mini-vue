@@ -50,7 +50,5 @@
   "files.autoSave": "onFocusChange",
   "path-intellisense.mappings": {
     "@": "${workspaceRoot}/src"
-  },
-  "files.eol": "\n",
-  "cSpell.words": ["vnode"]
+  }
 }
