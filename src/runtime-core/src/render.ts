@@ -1,4 +1,4 @@
-import { isObject } from "../../shared";
+import { ShapeFlags } from "../../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 
 export function render(vnode, container) {
@@ -14,7 +14,8 @@ export function render(vnode, container) {
 function patch(vnode, container) {
   // debugger;
   // check node type, assert to be component
-  if (isObject(vnode.type)) {
+  const { shapeFlag } = vnode;
+  if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, container);
   } else {
     processElement(vnode, container);
@@ -55,13 +56,13 @@ function processElement(vnode: any, container: any) {
   mountElement(vnode, container);
 }
 function mountElement(vnode: any, container: any) {
-  const { type, props, children } = vnode;
+  const { type, props, children, shapeFlag } = vnode;
   // 1. el & add 虚拟节点的el属性
   const element = (vnode.el = document.createElement(type));
 
   // 2. add children
-  if (typeof children == "string") element.textContent = children;
-  else if (Array.isArray(children)) {
+  if (shapeFlag & ShapeFlags.TEXT_CHILDREN) element.textContent = children;
+  else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
     mountChildren(vnode, element);
   }
 
