@@ -12,7 +12,7 @@ export function render(vnode, container) {
  * @param container 根容器Element
  */
 function patch(vnode, container) {
-  debugger;
+  // debugger;
   // check node type, assert to be component
   if (isObject(vnode.type)) {
     processComponent(vnode, container);
@@ -29,18 +29,23 @@ function processComponent(vnode, container) {
   // update
   updateComponent(vnode);
 }
-function mountComponent(vnode: any, container) {
-  const instance = createComponentInstance(vnode);
+function mountComponent(initialVNode: any, container) {
+  const instance = createComponentInstance(initialVNode);
   setupComponent(instance);
-  setupRenderEffects(instance, container);
+  setupRenderEffects(instance, initialVNode, container);
 }
 
-function setupRenderEffects(instance, container) {
-  const subTree = instance.render();
+function setupRenderEffects(instance, initialVNode, container) {
+  const { proxy } = instance;
+  // call 是 JavaScript 中的一个方法，用于调用函数并指定函数内部的 this 上下文, 这里调用render同时指定上下文this为proxy, 而不是instance
+  const subTree = instance.render.call(proxy);
 
   // vnode -> element -> mount(element)
   // 进入递归
   patch(subTree, container);
+
+  // 递归完毕
+  initialVNode.el = subTree.el;
 }
 
 function updateComponent(vnode: any) {}
@@ -51,21 +56,21 @@ function processElement(vnode: any, container: any) {
 }
 function mountElement(vnode: any, container: any) {
   const { type, props, children } = vnode;
-  // 1. el
-  const el = document.createElement(type);
+  // 1. el & add 虚拟节点的el属性
+  const element = (vnode.el = document.createElement(type));
 
   // 2. add children
-  if (typeof children == "string") el.textContent = children;
+  if (typeof children == "string") element.textContent = children;
   else if (Array.isArray(children)) {
-    mountChildren(vnode, el);
+    mountChildren(vnode, element);
   }
 
   // 3. add props
   for (const key in props) {
     const val = props[key];
-    el.setAttribute(key, val);
+    element.setAttribute(key, val);
   }
-  container.append(el);
+  container.append(element);
 }
 
 function mountChildren(vnode: any, container: any) {

@@ -1,7 +1,11 @@
+import { publicInstanceHandlers } from "./componentPublicInstance";
+
 export function createComponentInstance(vnode) {
+  // proxy--组件代理对象
   const component = {
     vnode,
     type: vnode.type,
+    setupState: {},
   };
 
   return component;
@@ -21,10 +25,14 @@ function setupStatefulComponent(instance) {
   const component = instance.type;
   const { setup } = component;
 
+  // handle setup
   if (setup) {
     const setupRes = setup();
     handleSetupRes(instance, setupRes);
   }
+
+  // handle proxy
+  instance.proxy = new Proxy({ _: instance }, publicInstanceHandlers);
 }
 
 function handleSetupRes(instance, setupRes: any) {
@@ -32,7 +40,7 @@ function handleSetupRes(instance, setupRes: any) {
   // 2. return 值
 
   if (typeof setupRes == "object") {
-    instance.setupRes = setupRes;
+    instance.setupState = setupRes;
   }
   finishComponentSetup(instance);
 }
