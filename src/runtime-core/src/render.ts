@@ -69,7 +69,13 @@ function mountElement(vnode: any, container: any) {
   // 3. add props
   for (const key in props) {
     const val = props[key];
-    element.setAttribute(key, val);
+    console.log(key);
+    const isEvent = (key: string) => /^on[A-Z]/.test(key);
+    if (isEvent(key)) {
+      element.addEventListener(key.slice(2).toLocaleLowerCase(), val);
+    } else {
+      element.setAttribute(key, val);
+    }
   }
   container.append(element);
 }

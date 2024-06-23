@@ -18,9 +18,15 @@ export default {
       {
         id: "root",
         class: "hard",
+        onClick: () => {
+          console.log("haha");
+        },
+        onMouseDown: () => {
+          console.log("onMouseDown");
+        },
       },
-      // "hi, wuhaolei"
-      [h("p", { class: "red" }, "hi"), h("p", { class: "blue" }, "wuhaolei")]
+      "hi, wuhaolei"
+      // [h("p", { class: "red" }, "hi"), h("p", { class: "blue" }, "wuhaolei")]
     );
   },
 };
