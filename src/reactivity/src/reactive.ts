@@ -1,3 +1,4 @@
+import { isObject } from "../../shared";
 import {
   mutableHandlers,
   readonlyHandlers,
@@ -38,5 +39,10 @@ export function isReactive(value) {
 }
 
 function createReactiveObject(target, handler) {
+  if (!isObject(target)) {
+    console.warn("非对象类型不能构成响应式对象");
+    return target;
+  }
+
   return new Proxy(target, handler);
 }

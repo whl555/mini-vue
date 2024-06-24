@@ -1,3 +1,5 @@
+import { isOwn } from "../../shared";
+
 const map = {
   $el: (i) => i.vnode.el,
 };
@@ -6,9 +8,11 @@ export const publicInstanceHandlers = {
     console.log("@", instance);
 
     // setup
-    const { setupState } = instance;
-    if (key in setupState) {
+    const { setupState, props } = instance;
+    if (isOwn(key, setupState)) {
       return setupState[key];
+    } else if (isOwn(key, props)) {
+      return props[key];
     }
 
     // type

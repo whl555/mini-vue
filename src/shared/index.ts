@@ -7,3 +7,7 @@ export const isObject = (val) => {
 export const isSame = (val, newVal) => {
   return Object.is(val, newVal);
 };
+
+// val中是否有key
+export const isOwn = (key, obj) =>
+  Object.prototype.hasOwnProperty.call(obj, key);
