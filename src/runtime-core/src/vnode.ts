@@ -1,3 +1,4 @@
+import { isObject } from "../../shared";
 import { ShapeFlags } from "../../shared/shapeFlags";
 
 export function createVNode(type, props?, children?) {
@@ -23,6 +24,10 @@ function getShapeFlag(type, children?) {
   } else if (Array.isArray(children)) {
     flag |= ShapeFlags.ARRAY_CHILDREN;
   }
+
+  // 为每个vnode判断slots
+  if (flag & ShapeFlags.STATEFUL_COMPONENT && isObject(children))
+    flag |= ShapeFlags.SLOTS_CHILDREN;
 
   return flag;
 }
