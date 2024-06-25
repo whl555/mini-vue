@@ -1,4 +1,4 @@
-import { h } from "../../dist/mini-vue.esm-bundler.js";
+import { h, createTextNode } from "../../dist/mini-vue.esm-bundler.js";
 import { Foo } from "./Foo.js";
 
 export default {
@@ -17,6 +17,6 @@ export default {
         footer: () => h("p", {}, "footer"),
       }
     );
-    return h("div", {}, [h("div", {}, "App"), foo]);
+    return h("div", {}, [h("div", {}, "App"), foo, createTextNode("你好世界")]);
   },
 };

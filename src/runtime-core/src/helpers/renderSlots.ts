@@ -1,5 +1,5 @@
 import { isFunction } from "../../../shared";
-import { createVNode } from "../vnode";
+import { Fragment, createVNode } from "../vnode";
 
 export function renderSlots(slots, name, props?) {
   const slot = slots[name];
@@ -11,5 +11,5 @@ export function renderSlots(slots, name, props?) {
     console.warn("该名字的slot不是函数形式");
     return;
   }
-  return createVNode("div", {}, slot(props));
+  return createVNode(Fragment, {}, slot(props));
 }

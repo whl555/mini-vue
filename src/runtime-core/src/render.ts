@@ -1,5 +1,6 @@
 import { ShapeFlags } from "../../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { Fragment, Text } from "./vnode";
 
 export function render(vnode, container) {
   // invoke patch
@@ -14,11 +15,22 @@ export function render(vnode, container) {
 function patch(vnode, container) {
   // debugger;
   // check node type, assert to be component
-  const { shapeFlag } = vnode;
-  if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
-  } else {
-    processElement(vnode, container);
+  const { type, shapeFlag } = vnode;
+
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container);
+      break;
+    case Text:
+      processTextNode(vnode, container);
+      break;
+    default:
+      if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container);
+      } else if (shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      }
+      break;
   }
 }
 
@@ -80,8 +92,29 @@ function mountElement(vnode: any, container: any) {
   container.append(element);
 }
 
+/**
+ * 递归处理所有children
+ * @param vnode
+ * @param container
+ */
 function mountChildren(vnode: any, container: any) {
   vnode.children.forEach((child) => {
     patch(child, container);
   });
+}
+/**
+ * 单独处理Fragment
+ * @param vnode
+ * @param container
+ */
+function processFragment(vnode: any, container: any) {
+  mountChildren(vnode, container);
+}
+function processTextNode(vnode: any, container: any) {
+  const { children } = vnode;
+  // 1. el & add 虚拟节点的el属性
+  const element = (vnode.el = document.createTextNode(children));
+
+  // 2. add textNode
+  container.append(element);
 }
