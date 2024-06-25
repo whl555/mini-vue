@@ -6,7 +6,14 @@ export default {
   setup() {},
 
   render() {
-    const foo = h(Foo, {}, [h("p", {}, "123"), h("p", {}, "123")]);
+    const foo = h(
+      Foo,
+      {},
+      {
+        header: h("p", {}, "header"),
+        footer: h("p", {}, "footer"),
+      }
+    );
     return h("div", {}, [h("div", {}, "App"), foo]);
   },
 };
