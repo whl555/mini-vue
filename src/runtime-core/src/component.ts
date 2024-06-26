@@ -3,6 +3,7 @@ import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
 import { publicInstanceHandlers } from "./componentPublicInstance";
 import { initSlots } from "./componentSlots";
+import { setCurrentInstance } from "./getCurrentInstance";
 
 export function createComponentInstance(vnode) {
   // proxy--组件代理对象
@@ -35,9 +36,11 @@ function setupStatefulComponent(instance) {
 
   // handle setup
   if (setup) {
+    setCurrentInstance(instance);
     const setupRes = setup(shallowReadonly(instance.props), {
       emit: instance.emit,
     });
+    setCurrentInstance(null);
     handleSetupRes(instance, setupRes);
   }
 
