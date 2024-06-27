@@ -1,3 +1,4 @@
+import { proxyRefs } from "../../reactivity";
 import { shallowReadonly } from "../../reactivity/src/reactive";
 import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
@@ -41,7 +42,7 @@ function setupStatefulComponent(instance) {
       emit: instance.emit,
     });
     setCurrentInstance(null);
-    handleSetupRes(instance, setupRes);
+    handleSetupRes(instance, proxyRefs(setupRes));
   }
 
   // handle proxy
