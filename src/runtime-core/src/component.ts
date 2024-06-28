@@ -15,6 +15,8 @@ export function createComponentInstance(vnode) {
     props: {},
     slots: {},
     emit: (event) => {},
+    subTree: {}, // render函数的返回值?
+    isMounted: false, // 当前虚拟节点是否被挂载
   };
 
   component.emit = emit.bind(null, component); //绑定第一个参数为component, 用户只需要传入第二个参数event

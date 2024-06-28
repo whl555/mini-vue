@@ -6,8 +6,6 @@ const map = {
 };
 export const publicInstanceHandlers = {
   get({ _: instance }, key) {
-    console.log("@", instance);
-
     // setup
     const { setupState, props } = instance;
     if (isOwn(key, setupState)) {

@@ -4,9 +4,22 @@ export const App = {
   name: "App",
   setup() {
     let count = ref(0);
-    return { count };
+
+    const onClick = () => {
+      count.value++;
+    };
+    return { count, onClick };
   },
   render() {
-    return h("div", {}, "count: " + this.count);
+    return h("div", {}, [
+      h("p", {}, "count: " + this.count),
+      h(
+        "button",
+        {
+          onClick: this.onClick,
+        },
+        "click to add"
+      ),
+    ]);
   },
 };

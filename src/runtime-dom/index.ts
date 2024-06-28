@@ -1,7 +1,6 @@
 import { createRenderer } from "../runtime-core/src/render";
 
 function createElement(type) {
-  console.log("CreateElement", type);
   const element = document.createElement(type);
   return element;
 }

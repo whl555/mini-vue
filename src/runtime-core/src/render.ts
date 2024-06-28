@@ -1,3 +1,4 @@
+import { effect } from "../../reactivity";
 import { ShapeFlags } from "../../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { createAppAPI } from "./createApp";
@@ -9,43 +10,43 @@ export function createRenderer(options) {
 
   function render(vnode, container) {
     // invoke patch
-    patch(vnode, container);
+    patch(null, vnode, container);
   }
 
   /**
    * 递归处理虚拟节点树, 递归终点是Element
-   * @param vnode 虚拟节点
-   * @param container 根容器Element
    */
-  function patch(vnode, container) {
+  function patch(prev, cur, container) {
     // debugger;
     // check node type, assert to be component
-    const { type, shapeFlag } = vnode;
+    const { type, shapeFlag } = cur;
 
     switch (type) {
       case Fragment:
-        processFragment(vnode, container);
+        processFragment(cur, container);
         break;
       case Text:
-        processTextNode(vnode, container);
+        processTextNode(cur, container);
         break;
       default:
         if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-          processComponent(vnode, container);
+          processComponent(prev, cur, container);
         } else if (shapeFlag & ShapeFlags.ELEMENT) {
-          processElement(vnode, container);
+          processElement(prev, cur, container);
         }
         break;
     }
   }
 
   // 处理component组件
-  function processComponent(vnode, container) {
-    // init
-    mountComponent(vnode, container);
-
-    // update
-    updateComponent(vnode);
+  function processComponent(prev, cur: any, container) {
+    if (!prev) {
+      // init
+      mountComponent(cur, container);
+    } else {
+      // update
+      updateComponent(prev, cur, container);
+    }
   }
   function mountComponent(initialVNode: any, container) {
     const instance = createComponentInstance(initialVNode);
@@ -54,23 +55,42 @@ export function createRenderer(options) {
   }
 
   function setupRenderEffects(instance, initialVNode, container) {
-    const { proxy } = instance;
-    // call 是 JavaScript 中的一个方法，用于调用函数并指定函数内部的 this 上下文, 这里调用render同时指定上下文this为proxy, 而不是instance
-    const subTree = instance.render.call(proxy);
+    effect(() => {
+      if (!instance.isMounted) {
+        const { proxy } = instance;
+        // call 是 JavaScript 中的一个方法，用于调用函数并指定函数内部的 this 上下文, 这里调用render同时指定上下文this为proxy, 而不是instance
+        const subTree = instance.render.call(proxy);
+        instance.subTree = subTree;
 
-    // vnode -> element -> mount(element)
-    // 进入递归
-    patch(subTree, container);
+        // vnode -> element -> mount(element)
+        // 进入递归
+        patch(null, subTree, container);
 
-    // 递归完毕
-    initialVNode.el = subTree.el;
+        // 递归完毕
+        initialVNode.el = subTree.el;
+        instance.isMounted = true;
+      } else {
+        const { proxy } = instance;
+        const subTree = instance.render.call(proxy);
+
+        const pre = instance.subTree;
+        instance.subTree = subTree;
+
+        patch(pre, subTree, container);
+        initialVNode.el = subTree.el;
+
+        console.log("update");
+      }
+    });
   }
 
-  function updateComponent(vnode: any) {}
-
   // 处理element节点
-  function processElement(vnode: any, container: any) {
-    mountElement(vnode, container);
+  function processElement(prev, cur: any, container: any) {
+    if (!prev) {
+      mountElement(cur, container);
+    } else {
+      updateElement(prev, cur, container);
+    }
   }
   function mountElement(vnode: any, container: any) {
     const { type, props, children, shapeFlag } = vnode;
@@ -98,7 +118,7 @@ export function createRenderer(options) {
    */
   function mountChildren(vnode: any, container: any) {
     vnode.children.forEach((child) => {
-      patch(child, container);
+      patch(null, child, container);
     });
   }
   /**
@@ -119,4 +139,11 @@ export function createRenderer(options) {
   }
 
   return { createApp: createAppAPI(render) };
+}
+
+function updateComponent(rev, cur: any, container: any) {
+  // TODO
+}
+function updateElement(prev, cur: any, container: any) {
+  // TODO
 }
