@@ -5,12 +5,17 @@ function createElement(type) {
   return element;
 }
 
-function patchProp(element, key, val) {
+function patchProp(element, key, oldVal, newVal) {
   const isEvent = (key: string) => /^on[A-Z]/.test(key);
   if (isEvent(key)) {
-    element.addEventListener(key.slice(2).toLocaleLowerCase(), val);
+    element.addEventListener(key.slice(2).toLocaleLowerCase(), newVal);
   } else {
-    element.setAttribute(key, val);
+    // handle props
+    if (newVal == undefined || newVal == null) {
+      element.removeAttribute(key);
+    } else {
+      element.setAttribute(key, newVal);
+    }
   }
 }
 

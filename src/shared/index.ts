@@ -38,3 +38,5 @@ export const camelize = (str: string): string => {
 export const isFunction = (val) => {
   return val != null && typeof val == "function";
 };
+
+export const EMPTY_OBJ = {};

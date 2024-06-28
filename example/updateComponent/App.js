@@ -3,16 +3,20 @@ import { h, ref } from "../../dist/mini-vue.esm-bundler.js";
 export const App = {
   name: "App",
   setup() {
-    let count = ref(0);
+    let props = ref({
+      foo: "foo",
+    });
 
     const onClick = () => {
-      count.value++;
+      props.value.foo = "new-foo"; // case1-change
+      // props.value.foo = undefined; // case2-undefined
+      // props.value = {}; // case3-remove
     };
-    return { count, onClick };
+    return { props, onClick };
   },
   render() {
-    return h("div", {}, [
-      h("p", {}, "count: " + this.count),
+    return h("div", { id: "root", ...this.props }, [
+      h("p", {}, "foo"),
       h(
         "button",
         {

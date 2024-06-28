@@ -1,4 +1,5 @@
 import { effect } from "../../reactivity";
+import { EMPTY_OBJ } from "../../shared";
 import { ShapeFlags } from "../../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { createAppAPI } from "./createApp";
@@ -106,7 +107,7 @@ export function createRenderer(options) {
     // 3. add props
     for (const key in props) {
       const val = props[key];
-      patchProp(element, key, val);
+      patchProp(element, key, null, val);
     }
     insertElement(element, container);
   }
@@ -138,12 +139,41 @@ export function createRenderer(options) {
     container.append(element);
   }
 
-  return { createApp: createAppAPI(render) };
-}
+  function updateComponent(rev, cur: any, container: any) {
+    // TODO
+  }
 
-function updateComponent(rev, cur: any, container: any) {
-  // TODO
-}
-function updateElement(prev, cur: any, container: any) {
-  // TODO
+  function updateElement(prev, cur: any, container: any) {
+    // TODO
+    console.log(prev, cur);
+    const el = (cur.el = prev.el);
+    // update props
+    const oldProps = prev.props || EMPTY_OBJ;
+    const newProps = cur.props || EMPTY_OBJ;
+    updateProps(el, oldProps, newProps);
+  }
+
+  function updateProps(el, oldProps: any, newProps: any) {
+    console.log(oldProps, newProps);
+    if (oldProps != newProps) {
+      for (const key in newProps) {
+        const oldVal = oldProps[key];
+        const newVal = newProps[key];
+        if (oldVal != newVal) {
+          patchProp(el, key, oldVal, newVal);
+        }
+      }
+
+      if (oldProps != EMPTY_OBJ) {
+        // remove if property is deleted
+        for (const key in oldProps) {
+          if (!(key in newProps)) {
+            patchProp(el, key, oldProps[key], null);
+          }
+        }
+      }
+    }
+  }
+
+  return { createApp: createAppAPI(render) };
 }
