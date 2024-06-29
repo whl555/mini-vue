@@ -40,9 +40,10 @@ function setupStatefulComponent(instance) {
   // handle setup
   if (setup) {
     setCurrentInstance(instance);
-    const setupRes = setup(shallowReadonly(instance.props), {
-      emit: instance.emit,
-    });
+    const setupRes =
+      setup(shallowReadonly(instance.props), {
+        emit: instance.emit,
+      }) || {};
     setCurrentInstance(null);
     handleSetupRes(instance, proxyRefs(setupRes));
   }

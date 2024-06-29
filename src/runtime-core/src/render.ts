@@ -7,7 +7,15 @@ import { Fragment, Text } from "./vnode";
 
 // closure
 export function createRenderer(options) {
-  const { createElement, patchProp, insertElement } = options;
+  const {
+    createElement,
+    patchProp,
+    insertElement,
+    removeElement,
+    createText,
+    setElementText,
+    setText,
+  } = options;
 
   function render(vnode, container) {
     // invoke patch
@@ -151,6 +159,9 @@ export function createRenderer(options) {
     const oldProps = prev.props || EMPTY_OBJ;
     const newProps = cur.props || EMPTY_OBJ;
     updateProps(el, oldProps, newProps);
+
+    // update children
+    updateChildren(prev, cur, container);
   }
 
   function updateProps(el, oldProps: any, newProps: any) {
@@ -172,6 +183,39 @@ export function createRenderer(options) {
           }
         }
       }
+    }
+  }
+
+  function updateChildren(prev: any, cur: any, container: any) {
+    const { shapeFlag: prevShapeFlag, children: c1 } = prev;
+    const { shapeFlag, children: c2 } = cur;
+
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        // clear old array children
+        unmountChildren(c1);
+      }
+      if (c1 != c2) {
+        // set text
+        setElementText(container, c2);
+      }
+    } else {
+      // cur is array
+      if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+        setElementText(container, "");
+        mountChildren(cur, container);
+      } else {
+        // array to array
+        unmountChildren(c1);
+        mountChildren(cur, container);
+      }
+    }
+  }
+
+  function unmountChildren(children) {
+    for (let index = 0; index < children.length; index++) {
+      const element = children[index];
+      removeElement(element);
     }
   }
 

@@ -23,7 +23,34 @@ function insertElement(el, parent) {
   parent.append(el);
 }
 
-const render: any = createRenderer({ createElement, patchProp, insertElement });
+function removeElement(child) {
+  const parent = child.parentNode;
+  if (parent) {
+    parent.removeChild(child);
+  }
+}
+
+function createText(text) {
+  return document.createTextNode(text);
+}
+
+function setText(node, text) {
+  node.nodeValue = text;
+}
+
+function setElementText(el, text) {
+  el.textContent = text;
+}
+
+const render: any = createRenderer({
+  createElement,
+  patchProp,
+  insertElement,
+  removeElement,
+  createText,
+  setElementText,
+  setText,
+});
 
 export function createApp(...args) {
   return render.createApp(...args);
