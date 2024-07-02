@@ -3,6 +3,7 @@ import { EMPTY_OBJ } from "../../shared";
 import { getSequence } from "../../shared/LIS";
 import { ShapeFlags } from "../../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { shouldUpdateComponent } from "./componentRenderUtils";
 import { createAppAPI } from "./createApp";
 import { Fragment, Text } from "./vnode";
 
@@ -59,13 +60,15 @@ export function createRenderer(options) {
     }
   }
   function mountComponent(initialVNode: any, container) {
-    const instance = createComponentInstance(initialVNode);
+    const instance = (initialVNode.component =
+      createComponentInstance(initialVNode));
     setupComponent(instance);
     setupRenderEffects(instance, initialVNode, container);
   }
 
   function setupRenderEffects(instance, initialVNode, container) {
-    effect(() => {
+    // return runner, 手动调用runner可以触发effect
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         const { proxy } = instance;
         // call 是 JavaScript 中的一个方法，用于调用函数并指定函数内部的 this 上下文, 这里调用render同时指定上下文this为proxy, 而不是instance
@@ -80,7 +83,13 @@ export function createRenderer(options) {
         initialVNode.el = subTree.el;
         instance.isMounted = true;
       } else {
-        const { proxy } = instance;
+        // update component props
+        const { proxy, next, vnode } = instance;
+
+        if (next) {
+          next.el = vnode.el;
+          updateComponentPreRender(instance, next);
+        }
         const subTree = instance.render.call(proxy);
 
         const pre = instance.subTree;
@@ -148,8 +157,20 @@ export function createRenderer(options) {
     container.append(element);
   }
 
-  function updateComponent(rev, cur: any, container: any) {
-    // TODO
+  function updateComponent(prev, cur: any, container: any) {
+    console.log("updateComponent", prev, cur);
+    const instance = (cur.component = prev.component);
+    if (shouldUpdateComponent(prev, cur)) {
+      // update props
+      // patch old child and new child
+      instance.next = cur;
+      instance.update();
+    } else {
+      // 不需要更新的话，那么只需要覆盖下面的属性即可
+      cur.component = prev.component;
+      cur.el = prev.el;
+      instance.vnode = cur;
+    }
   }
 
   function updateElement(prev, cur: any, container: any) {
@@ -383,6 +404,12 @@ export function createRenderer(options) {
       const element = children[index];
       removeElement(element);
     }
+  }
+
+  function updateComponentPreRender(instance, nextVNode) {
+    instance.vnode = nextVNode;
+    instance.next = null;
+    instance.props = nextVNode.props;
   }
 
   return { createApp: createAppAPI(render) };

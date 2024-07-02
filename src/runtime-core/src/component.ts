@@ -10,6 +10,7 @@ export function createComponentInstance(vnode) {
   // proxy--组件代理对象
   const component = {
     vnode,
+    next: null, // 下一个更新的vnode
     type: vnode.type,
     setupState: {},
     props: {},
@@ -17,6 +18,7 @@ export function createComponentInstance(vnode) {
     emit: (event) => {},
     subTree: {}, // render函数的返回值?
     isMounted: false, // 当前虚拟节点是否被挂载
+    update: null, // setupRenderEffects函数effect收集为依赖，其返回值runner作为update
   };
 
   component.emit = emit.bind(null, component); //绑定第一个参数为component, 用户只需要传入第二个参数event

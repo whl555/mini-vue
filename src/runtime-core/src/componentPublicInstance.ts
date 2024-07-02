@@ -3,6 +3,7 @@ import { isOwn } from "../../shared";
 const map = {
   $el: (i) => i.vnode.el,
   $slots: (i) => i.slots,
+  $props: (i) => i.props,
 };
 export const publicInstanceHandlers = {
   get({ _: instance }, key) {
