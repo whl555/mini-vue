@@ -40,3 +40,5 @@ export const isFunction = (val) => {
 };
 
 export const EMPTY_OBJ = {};
+
+export const isString = (val) => typeof val === "string";
