@@ -65,7 +65,21 @@ function handleSetupRes(instance, setupRes: any) {
 }
 function finishComponentSetup(instance) {
   const component = instance.type;
+  // 用户写的render函数优先级大于compiler模块生成的render函数
+  if (compile && !component.render) {
+    if (component.template) {
+      // 这里就是 runtime 模块和 compile 模块结合点
+      const template = component.template;
+      component.render = compile(template);
+    }
+  }
+
   if (component.render) {
     instance.render = component.render;
   }
+}
+
+let compile;
+export function registerRuntimeCompiler(_compile) {
+  compile = _compile;
 }

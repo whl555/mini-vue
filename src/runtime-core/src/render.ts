@@ -74,7 +74,7 @@ export function createRenderer(options) {
         if (!instance.isMounted) {
           const { proxy } = instance;
           // call 是 JavaScript 中的一个方法，用于调用函数并指定函数内部的 this 上下文, 这里调用render同时指定上下文this为proxy, 而不是instance
-          const subTree = instance.render.call(proxy);
+          const subTree = instance.render.call(proxy, proxy);
           instance.subTree = subTree;
 
           // vnode -> element -> mount(element)
@@ -92,7 +92,7 @@ export function createRenderer(options) {
             next.el = vnode.el;
             updateComponentPreRender(instance, next);
           }
-          const subTree = instance.render.call(proxy);
+          const subTree = instance.render.call(proxy, proxy);
 
           const pre = instance.subTree;
           instance.subTree = subTree;
