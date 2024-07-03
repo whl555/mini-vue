@@ -22,9 +22,12 @@ function createParserContext(content: string) {
  * @returns
  */
 function createRoot(children) {
-  return { children };
+  return {
+    type: NodeTypes.ROOT,
+    children,
+    helpers: [],
+  };
 }
-
 function parseChildren(context, ancestors) {
   console.log("开始解析 children");
   const nodes: any = [];
